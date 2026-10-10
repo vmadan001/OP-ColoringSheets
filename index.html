@@ -590,7 +590,14 @@ function getPages(){
 }
 $("pages").addEventListener("change", getPages);
 
+let lastPdfUrl = null;   // the PDF held by the most recent new tab
+function freeLastPdf(){
+  if (lastPdfUrl){ URL.revokeObjectURL(lastPdfUrl); lastPdfUrl = null; }
+}
+window.addEventListener("pagehide", freeLastPdf);
+
 $("dl").addEventListener("click", async () => {
+  freeLastPdf();   // release the previous PDF's memory before building a new one
   const btn = $("dl"), label = btn.textContent;
   btn.disabled = true; $("status").textContent = "";
   // Open the new tab right now (inside the click) so popup blockers allow it
@@ -619,7 +626,8 @@ $("dl").addEventListener("click", async () => {
     const pages = doc.getNumberOfPages(), pageWord = pages === 1 ? " page" : " pages";
     if (win && !win.closed) {
       // Show the PDF in the new tab instead of saving it
-      win.location.href = URL.createObjectURL(doc.output("blob"));
+      lastPdfUrl = URL.createObjectURL(doc.output("blob"));
+      win.location.href = lastPdfUrl;
       $("status").textContent = "Opened " + pages + pageWord + " in a new tab.";
     } else {
       // Popup blocked: fall back to a normal download
