@@ -604,7 +604,7 @@ $("dl").addEventListener("click", async () => {
   let win = null;
   try {
     win = window.open("", "_blank");
-    if (win) win.document.write("<title>Coloring sheets</title><p style='font-family:sans-serif'>Building your PDF\u2026</p>");
+    if (win) win.document.write("<title>Owl and Penguin Coloring Sheets</title><p style='font-family:sans-serif'>Building your PDF\u2026</p>");
   } catch (e) { win = null; }
   try {
     const n = getPages();
@@ -612,6 +612,7 @@ $("dl").addEventListener("click", async () => {
     const { jsPDF } = window.jspdf;
     const land = $("orient").value === "l";
     const doc = new jsPDF({ orientation: land?"landscape":"portrait", unit:"in", format:$("size").value });
+    doc.setProperties({ title: "Owl and Penguin Coloring Sheets" });
     const pw = doc.internal.pageSize.getWidth(), ph = doc.internal.pageSize.getHeight();
     for (let i = 0; i < n; i++){
       btn.textContent = n > 1 ? "Building page " + (i+1) + " of " + n + "…" : "Building…";
