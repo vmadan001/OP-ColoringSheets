@@ -449,7 +449,7 @@ canvas{max-width:100%;height:auto;background:#fff;box-shadow:0 2px 12px #0004}
     <input type="number" id="pages" value="1" min="1" max="10" step="1" inputmode="numeric">
 
     <button id="gen">Refresh</button>
-    <button id="dl" class="secondary">Download PDF</button>
+    <button id="dl" class="secondary">Print Sheets</button>
     <p class="note" style="text-align:center">Look for Owl and Penguin books at your local library and bookstore.</p>
     <div id="status" class="note" aria-live="polite"></div>
     <div id="warn">Loading the Owl and Penguin font…</div>
@@ -593,6 +593,12 @@ $("pages").addEventListener("change", getPages);
 $("dl").addEventListener("click", async () => {
   const btn = $("dl"), label = btn.textContent;
   btn.disabled = true; $("status").textContent = "";
+  // Open the new tab right now (inside the click) so popup blockers allow it
+  let win = null;
+  try {
+    win = window.open("", "_blank");
+    if (win) win.document.write("<title>Coloring sheets</title><p style='font-family:sans-serif'>Building your PDF\u2026</p>");
+  } catch (e) { win = null; }
   try {
     const n = getPages();
     const pairs = uniquePairs(n, current);
@@ -610,8 +616,19 @@ $("dl").addEventListener("click", async () => {
     // Safety net: the PDF must contain exactly n pages, no more
     while (doc.getNumberOfPages() > n) doc.deletePage(doc.getNumberOfPages());
     render(current);                               // restore the preview
-    $("status").textContent = "Downloaded " + doc.getNumberOfPages() + (doc.getNumberOfPages() === 1 ? " page." : " pages.");
-    doc.save(n === 1 ? "coloring-sheet-" + current.join("") + ".pdf" : "coloring-sheets-" + n + "-pages.pdf");
+    const pages = doc.getNumberOfPages(), pageWord = pages === 1 ? " page" : " pages";
+    if (win && !win.closed) {
+      // Show the PDF in the new tab instead of saving it
+      win.location.href = URL.createObjectURL(doc.output("blob"));
+      $("status").textContent = "Opened " + pages + pageWord + " in a new tab.";
+    } else {
+      // Popup blocked: fall back to a normal download
+      doc.save(n === 1 ? "coloring-sheet-" + current.join("") + ".pdf" : "coloring-sheets-" + n + "-pages.pdf");
+      $("status").textContent = "Downloaded " + pages + pageWord + " (your browser blocked the new tab).";
+    }
+  } catch (err) {
+    if (win && !win.closed) win.close();
+    throw err;
   } finally {
     btn.disabled = false; btn.textContent = label;
   }
