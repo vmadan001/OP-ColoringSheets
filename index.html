@@ -417,6 +417,7 @@ main{max-width:980px;margin:0 auto;padding:20px;display:grid;grid-template-colum
 @media(max-width:760px){main{grid-template-columns:1fr}}
 h1{grid-column:1/-1;margin:0;font-size:1.6rem}
 h1 span{color:var(--accent)}
+h1 .g{font-family:"ColoringFont",sans-serif;font-weight:normal;font-style:normal;font-synthesis:none;font-size:1.9em;line-height:1;vertical-align:middle;color:var(--text);visibility:hidden}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
 label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 4px}
 input[type=text],input[type=number],select{width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:1rem}
@@ -434,7 +435,7 @@ canvas{max-width:100%;height:auto;background:#fff;box-shadow:0 2px 12px #0004}
 </head>
 <body>
 <main>
-  <h1>🖍️ <span style="color:rgb(210,128,0)">Owl</span> and <span style="color:rgb(120,158,185)">Penguin</span> Coloring Sheet Maker</h1>
+  <h1><span id="gL" class="g" aria-hidden="true"></span> <span style="color:rgb(210,128,0)">Owl</span> and <span style="color:rgb(120,158,185)">Penguin</span> Coloring Sheet Maker <span id="gR" class="g" aria-hidden="true"></span></h1>
 
   <section class="card">
 
@@ -488,7 +489,15 @@ async function addFont(source){
   await face.load();
   document.fonts.add(face);
   fontLoaded = true;
+  setHeaderGlyphs();
   render();
+}
+// One random glyph from the 1st set before the title, one from the 2nd set after it
+function setHeaderGlyphs(){
+  const pick = set => set[Math.floor(Math.random()*set.length)];
+  $("gL").textContent = pick(POSITION_SETS[0]);
+  $("gR").textContent = pick(POSITION_SETS[1]);
+  $("gL").style.visibility = $("gR").style.visibility = "visible";
 }
 if (EMBEDDED_FONT_BASE64){
   addFont("url(data:" + EMBEDDED_FONT_MIME + ";base64," + EMBEDDED_FONT_BASE64 + ")").catch(console.error);
@@ -571,7 +580,7 @@ function render(pair){
 ["size","orient"].forEach(id =>
   $(id).addEventListener("input", render));
 
-$("gen").addEventListener("click", () => { current = randomPair(); render(); });
+$("gen").addEventListener("click", () => { current = randomPair(); if (fontLoaded) setHeaderGlyphs(); render(); });
 
 function uniquePairs(n, first){
   const seen = new Set([first.join("")]), out = [first];
