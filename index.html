@@ -417,7 +417,7 @@ main{max-width:980px;margin:0 auto;padding:20px;display:grid;grid-template-colum
 @media(max-width:760px){main{grid-template-columns:1fr}}
 h1{grid-column:1/-1;margin:0;font-size:1.6rem}
 h1 span{color:var(--accent)}
-.gr{font-family:"ColoringFont",sans-serif;font-weight:normal;font-style:normal;font-synthesis:none;font-size:3rem;line-height:1.2;text-align:center;color:var(--text);margin-top:10px;visibility:hidden}
+.gr{font-family:"ColoringFont",sans-serif;font-weight:normal;font-style:normal;font-synthesis:none;font-size:3rem;line-height:1.2;text-align:center;text-wrap:balance;color:var(--text);margin-top:10px;visibility:hidden}
 h1 .g{font-family:"ColoringFont",sans-serif;font-weight:normal;font-style:normal;font-synthesis:none;font-size:1.9em;line-height:1;vertical-align:middle;color:var(--text);visibility:hidden}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
 label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 4px}
@@ -501,13 +501,21 @@ function setHeaderGlyphs(){
   $("gR").textContent = pick(POSITION_SETS[1]);
   $("gL").style.visibility = $("gR").style.visibility = "visible";
 
-  // Decorative row: 2 different characters from each of the 4 sets, shuffled, separated by spaces
-  const row = [];
-  POSITION_SETS.forEach(set => {
-    const i = Math.floor(Math.random()*set.length);
-    let j = Math.floor(Math.random()*(set.length-1)); if (j >= i) j++;
-    row.push(set[i], set[j]);
+  // Decorative row: 6 characters, shuffled, separated by spaces.
+  // One from each of the 4 sets, plus a second character from 2 of the sets.
+  const pickFrom = set => set[Math.floor(Math.random()*set.length)];
+  const picks = POSITION_SETS.map(set => [pickFrom(set)]);
+  const extraSets = [0,1,2,3];
+  for (let k = extraSets.length - 1; k > 0; k--){
+    const m = Math.floor(Math.random()*(k+1));
+    [extraSets[k], extraSets[m]] = [extraSets[m], extraSets[k]];
+  }
+  extraSets.slice(0, 2).forEach(s => {
+    let c;
+    do { c = pickFrom(POSITION_SETS[s]); } while (picks[s].includes(c));
+    picks[s].push(c);
   });
+  const row = picks.flat();
   for (let k = row.length - 1; k > 0; k--){
     const m = Math.floor(Math.random()*(k+1));
     [row[k], row[m]] = [row[m], row[k]];
