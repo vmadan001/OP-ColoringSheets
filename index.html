@@ -542,11 +542,12 @@ function render(pair){
 
   const chars = pair;
   const margin = Math.round(0.5*DPI);
-  let top = margin, bottom = H - margin - Math.round(0.25*DPI);
+  let top = margin, bottom = H - margin - Math.round(0.4*DPI);
   // copyright footer
   ctx.fillStyle = "#888"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
   ctx.font = Math.round(0.14*DPI) + "px Arial, Helvetica, sans-serif";
-  ctx.fillText("Owl and Penguin Coloring Sheets, Copyright © Vikram Madan, All Rights Reserved VikramMadan.com @ArtByVikram", W/2, H - Math.round(0.4*DPI));
+  ctx.fillText("Owl and Penguin Coloring Sheets, Copyright © Vikram Madan, All Rights Reserved VikramMadan.com @ArtByVikram", W/2, H - Math.round(0.55*DPI));
+  ctx.fillText("Make more OWL AND PENGUIN coloring sheets at www.VikramMadan.com/ColoringSheets", W/2, H - Math.round(0.35*DPI));
 
   ctx.fillStyle = "#000"; ctx.textBaseline = "alphabetic";
   const sysFont = "Arial, Helvetica, sans-serif";
